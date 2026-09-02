@@ -147,7 +147,7 @@ Three named Docker volumes are used: `cvmfs-cache` (**important**, see below),
 | `COMBINE_DEV_NAME` | `combine-dev` | container name, for running several at once |
 
 ```bash
-LCG_VIEW=LCG_108 ./combine-dev.sh ~/CombinedLimit    # ROOT 6.36.02, stable
+LCG_VIEW=LCG_108 ./combine-dev.sh                      # ROOT 6.36.02, stable
 ```
 
 ## How it works
