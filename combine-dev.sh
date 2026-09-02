@@ -2,17 +2,29 @@
 #
 # Start (or re-attach to) a Combine AD development container.
 #
-#   ./combine-dev.sh [/path/to/HiggsAnalysis/CombinedLimit]      # interactive shell
-#   ./combine-dev.sh [src] -c 'combine-build'                    # run one command
+#   ./combine-dev.sh                       # interactive shell, uses ./CombinedLimit
+#   ./combine-dev.sh /other/CombinedLimit  # use a different checkout
+#   ./combine-dev.sh -c 'combine-build'    # run one command and exit
 #
-# With no path argument the current directory is used as the Combine source tree.
+# The source tree defaults to the CombinedLimit checkout sitting next to this
+# script; override with an argument or with $COMBINE_SRC.
 # Inside the shell, run `combine-build` to (re)build.
 #
 set -euo pipefail
 
-SRC_ARG="$PWD"
+HERE="$(cd "$(dirname "$0")" && pwd)"
+
+# Default to the Combine checkout that lives next to this script.
+SRC_ARG="${COMBINE_SRC:-$HERE/CombinedLimit}"
 if [ $# -gt 0 ] && [ "$1" != "-c" ]; then
   SRC_ARG="$1"; shift
+fi
+if [ ! -d "$SRC_ARG" ]; then
+  echo "error: no Combine checkout at $SRC_ARG" >&2
+  echo "       clone one with:" >&2
+  echo "         git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git $HERE/CombinedLimit" >&2
+  echo "       or pass a path / set COMBINE_SRC" >&2
+  exit 1
 fi
 SRC="$(cd "$SRC_ARG" && pwd)"
 
@@ -36,7 +48,7 @@ fi
 # Build the image on first use.
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
   echo ">> building $IMAGE"
-  docker build --platform "$DOCKER_PLATFORM" -t "$IMAGE" "$(cd "$(dirname "$0")" && pwd)"
+  docker build --platform "$DOCKER_PLATFORM" -t "$IMAGE" "$HERE"
 fi
 
 # Named volumes. The CVMFS cache is the important one: a cold cache turns a

@@ -32,10 +32,32 @@ container has to mount CVMFS itself. That is the whole trick here.
 On Apple Silicon this runs **natively on arm64** — LCG publishes
 `aarch64-el9-gcc{13,14,15,16}-opt` for `dev3`, so no Rosetta or x86 emulation is involved.
 
+## Layout
+
+The Combine source lives in a `CombinedLimit/` checkout next to the scripts:
+
+```
+combine-ad-local-setup/
+├── CombinedLimit/     <- your Combine clone (its own git repo; gitignored here)
+├── Dockerfile
+├── combine-dev.sh
+├── verify-ad.sh
+└── README.md
+```
+
+If you are starting from scratch:
+
+```bash
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git CombinedLimit
+```
+
+`CombinedLimit/` is listed in `.gitignore`, so this repo tracks only the environment, never
+Combine itself.
+
 ## Quick start
 
 ```bash
-./combine-dev.sh /path/to/HiggsAnalysis/CombinedLimit
+./combine-dev.sh
 ```
 
 Builds the image on first run, starts a container named `combine-dev`, and drops you into
@@ -55,10 +77,22 @@ combine-build          # cmake + make install -j$(nproc)
 combine --help
 ```
 
-Edit the source on your host as usual — it is bind-mounted read-write at `/src`. Builds
-go to a separate volume at `/build`, so your working tree stays clean.
+Edit the source on your host as usual — `CombinedLimit/` is bind-mounted read-write at
+`/src`. Builds go to a separate volume at `/build`, so your working tree stays clean, and
+you keep using your normal editor and `git` on macOS. The container supplies only the
+toolchain (ROOT master), which is the one thing the host cannot provide.
 
 Re-running `./combine-dev.sh` re-attaches to the existing container.
+
+To work against a different checkout:
+
+```bash
+./combine-dev.sh /path/to/other/CombinedLimit    # or: export COMBINE_SRC=...
+```
+
+The mount point inside the container is always `/src`, so the CMake cache in the `/build`
+volume stays valid when you switch trees — but it will then rebuild whatever is newly
+mounted. Use `docker volume rm combine-build` if you want a genuinely clean slate.
 
 ## Verifying that AD actually works
 
