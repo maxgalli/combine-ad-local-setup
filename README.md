@@ -89,7 +89,7 @@ combine-build          # cmake + make install -j$(nproc)
 combine --help
 ```
 
-Edit the source on your host as usual — `CombinedLimit/` is bind-mounted read-write at
+Edit the source on your host as usual — `HiggsAnalysis/CombinedLimit/` is bind-mounted at
 `/src`. Builds go to a separate volume at `/build`, so your working tree stays clean, and
 you keep using your normal editor and `git` on macOS. The container supplies only the
 toolchain (ROOT master), which is the one thing the host cannot provide.
