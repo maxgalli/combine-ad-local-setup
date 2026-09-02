@@ -34,11 +34,13 @@ On Apple Silicon this runs **natively on arm64** — LCG publishes
 
 ## Layout
 
-The Combine source lives in a `CombinedLimit/` checkout next to the scripts:
+The Combine source sits next to the scripts, in the `HiggsAnalysis/CombinedLimit`
+directory layout that CMS tooling expects:
 
 ```
 combine-ad-local-setup/
-├── CombinedLimit/     <- your Combine clone (its own git repo; gitignored here)
+├── HiggsAnalysis/
+│   └── CombinedLimit/   <- your Combine clone (its own git repo; gitignored here)
 ├── Dockerfile
 ├── combine-dev.sh
 ├── verify-ad.sh
@@ -48,11 +50,21 @@ combine-ad-local-setup/
 If you are starting from scratch:
 
 ```bash
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git CombinedLimit
+mkdir -p HiggsAnalysis
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git \
+    HiggsAnalysis/CombinedLimit
 ```
 
-`CombinedLimit/` is listed in `.gitignore`, so this repo tracks only the environment, never
+(~540 MB, about 15 s on a good connection.)
+
+`HiggsAnalysis/` is listed in `.gitignore`, so this repo tracks only the environment, never
 Combine itself.
+
+The nesting matters: Combine's sources and scripts include headers as
+`<HiggsAnalysis/CombinedLimit/interface/...>` — `scripts/fitRooFitAD.py` does exactly that
+— so the parent directory has to be named `HiggsAnalysis`. Inside the container the build
+installs to `/install/include/HiggsAnalysis/CombinedLimit/`, which is what
+`ROOT_INCLUDE_PATH` points at, so those includes also resolve for JIT-compiled code.
 
 ## Quick start
 

@@ -2,7 +2,7 @@
 #
 # Start (or re-attach to) a Combine AD development container.
 #
-#   ./combine-dev.sh                       # interactive shell, uses ./CombinedLimit
+#   ./combine-dev.sh                       # interactive shell, uses ./HiggsAnalysis/CombinedLimit
 #   ./combine-dev.sh /other/CombinedLimit  # use a different checkout
 #   ./combine-dev.sh -c 'combine-build'    # run one command and exit
 #
@@ -14,15 +14,18 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
-# Default to the Combine checkout that lives next to this script.
-SRC_ARG="${COMBINE_SRC:-$HERE/CombinedLimit}"
+# Default to the Combine checkout next to this script, laid out the way CMS
+# expects it: HiggsAnalysis/CombinedLimit.
+SRC_ARG="${COMBINE_SRC:-$HERE/HiggsAnalysis/CombinedLimit}"
 if [ $# -gt 0 ] && [ "$1" != "-c" ]; then
   SRC_ARG="$1"; shift
 fi
 if [ ! -d "$SRC_ARG" ]; then
   echo "error: no Combine checkout at $SRC_ARG" >&2
   echo "       clone one with:" >&2
-  echo "         git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git $HERE/CombinedLimit" >&2
+  echo "         mkdir -p $HERE/HiggsAnalysis && \\" >&2
+  echo "         git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git \\" >&2
+  echo "             $HERE/HiggsAnalysis/CombinedLimit" >&2
   echo "       or pass a path / set COMBINE_SRC" >&2
   exit 1
 fi
