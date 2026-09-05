@@ -69,6 +69,7 @@ if ! docker ps --filter "name=^${NAME}$" --format '{{.Names}}' | grep -q .; then
     -v combine-build:/build \
     -v combine-install:/install \
     -v "$SRC":/src -w /src \
+    -v "$HERE/inputs":/inputs \
     "$IMAGE" sleep infinity >/dev/null
 fi
 

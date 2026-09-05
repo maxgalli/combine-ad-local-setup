@@ -1,0 +1,7 @@
+# Reproducer data is large and analysis-specific: ignore everything,
+# but keep the small helper scripts and this note.
+*
+!.gitignore
+!README.md
+!*.py
+!*.cxx
