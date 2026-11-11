@@ -30,7 +30,7 @@ container has to mount CVMFS itself. That is the whole trick here.
 - ~10 GB of disk for the CVMFS cache volume.
 
 On Apple Silicon this runs **natively on arm64** — LCG publishes
-`aarch64-el9-gcc{13,14,15,16}-opt` for `dev3`, so no Rosetta or x86 emulation is involved.
+`aarch64-el9-gcc{15,16}-opt` for `dev3` (gcc13 was dropped for aarch64 in late 2026), so no Rosetta or x86 emulation is involved.
 
 ## Layout
 
@@ -76,8 +76,8 @@ Builds the image on first run, starts a container named `combine-dev`, and drops
 a shell with the LCG environment sourced:
 
 ```
-LCG view : /cvmfs/sft.cern.ch/lcg/views/dev3/latest/aarch64-el9-gcc13-opt/setup.sh
-ROOT     : 6.41.01
+LCG view : dev3/latest / aarch64-el9-gcc15-opt
+ROOT     : 6.43.01
 source   : /src   build: /build   install: /install
 commands : combine-build
 ```
@@ -155,11 +155,18 @@ Three named Docker volumes are used: `cvmfs-cache` (**important**, see below),
 | variable | default | meaning |
 |---|---|---|
 | `LCG_VIEW` | `dev3/latest` | LCG view; e.g. `LCG_108` for a stable stack |
-| `LCG_GCC` | `gcc13` | compiler flavour of the view |
+| `LCG_GCC` | `gcc15` | compiler flavour of the view (must exist for your arch in that view) |
 | `COMBINE_DEV_NAME` | `combine-dev` | container name, for running several at once |
 
 ```bash
 LCG_VIEW=LCG_108 ./combine-dev.sh                      # ROOT 6.36.02, stable
+```
+
+The `combine-build` volume remembers the compiler it was configured with. After changing
+`LCG_VIEW` or `LCG_GCC`, start from a clean build directory:
+
+```bash
+./combine-dev.sh -c 'rm -rf /build/* && combine-build'
 ```
 
 ## How it works

@@ -22,7 +22,7 @@ case "$(uname -m)" in
   x86_64)  ARCH=x86_64  ;;
   *) echo "unsupported arch $(uname -m)" >&2; exit 1 ;;
 esac
-source "/cvmfs/sft.cern.ch/lcg/views/${LCG_VIEW:-dev3/latest}/${ARCH}-el9-${LCG_GCC:-gcc13}-opt/setup.sh"
+source "/cvmfs/sft.cern.ch/lcg/views/${LCG_VIEW:-dev3/latest}/${ARCH}-el9-${LCG_GCC:-gcc15}-opt/setup.sh"
 export PATH=/install/bin:$PATH
 export LD_LIBRARY_PATH=/install/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=/install/python:$PYTHONPATH

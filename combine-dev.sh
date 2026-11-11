@@ -32,7 +32,7 @@ fi
 SRC="$(cd "$SRC_ARG" && pwd)"
 
 NAME="${COMBINE_DEV_NAME:-combine-dev}"
-GCC="${LCG_GCC:-gcc13}"
+GCC="${LCG_GCC:-gcc15}"
 LCG_VIEW="${LCG_VIEW:-dev3/latest}"
 ENV_FILE=/opt/combine-env.sh
 
@@ -81,8 +81,17 @@ for _ in $(seq 1 60); do
   sleep 1
 done
 if ! docker exec "$NAME" test -f "$SETUP" 2>/dev/null; then
-  echo "error: CVMFS did not come up, or '$SETUP' does not exist." >&2
-  echo "       check LCG_VIEW / LCG_GCC, and: docker exec $NAME cvmfs_config stat sft.cern.ch" >&2
+  VIEW_DIR="/cvmfs/sft.cern.ch/lcg/views/${LCG_VIEW}"
+  if docker exec "$NAME" test -d "$VIEW_DIR" 2>/dev/null; then
+    # CVMFS is fine; the requested platform is just not built in this view.
+    echo "error: '$SETUP' does not exist." >&2
+    echo "       platforms for ${LCG_ARCH%%-*} in view '$LCG_VIEW':" >&2
+    docker exec "$NAME" ls "$VIEW_DIR" 2>/dev/null | grep "^${LCG_ARCH%%-*}-" | sed 's/^/         /' >&2
+    echo "       pick one with LCG_GCC (e.g. LCG_GCC=gcc16) or change LCG_VIEW." >&2
+  else
+    echo "error: CVMFS did not come up, or view '$LCG_VIEW' does not exist." >&2
+    echo "       check LCG_VIEW, and: docker exec $NAME cvmfs_config stat sft.cern.ch" >&2
+  fi
   exit 1
 fi
 
